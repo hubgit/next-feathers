@@ -14,7 +14,7 @@ import { FormsyText } from 'formsy-material-ui'
 import { Form } from 'formsy-react'
 import ContentAddIcon from 'material-ui/svg-icons/content/add'
 import ContentRemoveIcon from 'material-ui/svg-icons/content/remove'
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import { MuiThemeProvider, getMuiTheme } from 'material-ui/styles'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 
 try {
@@ -31,6 +31,12 @@ export default class ArticlesList extends Component {
       articles: null,
       editing: false
     }
+  }
+
+  static getInitialProps ({req}) {
+    const userAgent = req ? req.headers['user-agent'] : navigator.userAgent
+
+    return {userAgent}
   }
 
   componentDidMount () {
@@ -60,9 +66,10 @@ export default class ArticlesList extends Component {
 
   render () {
     const { articles, editing } = this.state
+    const { userAgent } = this.props
 
     return (
-      <MuiThemeProvider>
+      <MuiThemeProvider muiTheme={getMuiTheme({ userAgent})}>
         <div style={{fontFamily: 'sans-serif'}}>
           <Toolbar>
             <ToolbarTitle text="Articles"/>

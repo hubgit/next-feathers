@@ -16,7 +16,10 @@ app.prepare().then(() => {
 
   glob.sync('./services/*.js').forEach(file => {
     const { name } = path.parse(file)
-    server.use(name, require(file))
+
+    server.use(name, require(file)({
+      paginate: { default: 10, max: 25 }
+    }))
   })
 
   server.get('*', (req, res) => {
