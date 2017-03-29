@@ -21,7 +21,7 @@ try {
   injectTapEventPlugin()
 } catch (e) {}
 
-const service = feathers.service('/api/articles')
+const service = feathers.service('articles')
 
 export default class ArticlesList extends Component {
   constructor (props) {
