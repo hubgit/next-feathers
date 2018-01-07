@@ -1,11 +1,8 @@
-import feathers from 'feathers/client'
-import hooks from 'feathers-hooks'
-import rest from 'feathers-rest/client'
-import reactive from 'feathers-reactive'
-import rxjs from 'rxjs'
-import 'isomorphic-fetch'
+const feathers = require('@feathersjs/feathers')
+const rest = require('@feathersjs/rest-client')
+const reactive = require('feathers-reactive')
+const fetch = require('isomorphic-unfetch')
 
 export default feathers()
-  .configure(hooks())
   .configure(rest().fetch(fetch))
-  .configure(reactive(rxjs))
+  .configure(reactive({idField: '_id'}))

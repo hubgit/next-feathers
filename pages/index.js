@@ -1,46 +1,23 @@
-import React, { Component } from 'react'
+import React from 'react'
+import Head from 'next/head'
+import { Button, Container, Form, Header, Icon, List, Modal } from 'semantic-ui-react'
 import feathers from '../feathers-client'
-import {
-  Dialog,
-  FlatButton,
-  FloatingActionButton,
-  IconButton,
-  List,
-  ListItem,
-  Toolbar,
-  ToolbarTitle
-} from 'material-ui'
-import { FormsyText } from 'formsy-material-ui'
-import { Form } from 'formsy-react'
-import ContentAddIcon from 'material-ui/svg-icons/content/add'
-import ContentRemoveIcon from 'material-ui/svg-icons/content/remove'
-import { MuiThemeProvider, getMuiTheme } from 'material-ui/styles'
-import injectTapEventPlugin from 'react-tap-event-plugin'
-
-try {
-  injectTapEventPlugin()
-} catch (e) {}
 
 const service = feathers.service('articles')
 
-export default class ArticlesList extends Component {
+class ArticlesList extends React.Component {
   constructor (props) {
     super(props)
 
     this.state = {
       articles: null,
-      editing: false
+      editing: false,
+      title: ''
     }
   }
 
-  static getInitialProps ({req}) {
-    const userAgent = req ? req.headers['user-agent'] : navigator.userAgent
-
-    return {userAgent}
-  }
-
   componentDidMount () {
-    this.subscriber = service.find().subscribe(articles => this.setState({ articles }))
+    this.subscriber = service.watch().find().subscribe(articles => this.setState({ articles }))
   }
 
   componentWillUnmount () {
@@ -52,68 +29,83 @@ export default class ArticlesList extends Component {
   }
 
   stopEditing = () => {
-    this.setState({editing: false})
-    this.editForm.reset()
+    this.setState({editing: false, title: ''})
   }
 
-  createArticle = data => {
-    service.create(data).then(this.stopEditing)
+  setTitle = event => {
+    this.setState({ title: event.target.value })
   }
 
-  removeArticle = id => {
+  createArticle = event => {
+    const { title } = this.state
+    service.create({ title }).then(this.stopEditing)
+  }
+
+  removeArticle = id => () => {
     service.remove(id)
   }
 
   render () {
-    const { articles, editing } = this.state
-    const { userAgent } = this.props
+    const { articles, editing, title } = this.state
 
     return (
-      <MuiThemeProvider muiTheme={getMuiTheme({ userAgent})}>
-        <div style={{fontFamily: 'sans-serif'}}>
-          <Toolbar>
-            <ToolbarTitle text="Articles"/>
-          </Toolbar>
+      <div>
+        <Head>
+          <title>Feathers + Next.js</title>
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.12/semantic.min.css" />
+        </Head>
 
-          <List style={{margin: 30}}>
+        <Container>
+          <Header size={'large'} style={{margin: '30px 0'}}>Articles</Header>
+
+          <List>
             {articles && articles.data.map(article => (
-              <ListItem
-                key={article.id}
-                primaryText={article.title}
-                rightIconButton={
-                  <IconButton onClick={() => this.removeArticle(article.id)}>
-                    <ContentRemoveIcon/>
-                  </IconButton>
-                }/>
+              <List.Item key={article._id}>
+                <List.Content floated={'right'}>
+                  <Button icon onClick={this.removeArticle(article._id)}>
+                    <Icon name={'remove'}/>
+                  </Button>
+                </List.Content>
+
+                <List.Content>
+                  {article.title}
+                </List.Content>
+              </List.Item>
             ))}
           </List>
 
-          <FloatingActionButton onClick={this.startEditing} style={{margin: 30}}>
-            <ContentAddIcon/>
-          </FloatingActionButton>
+          <Button icon circular size={'huge'} color={'blue'} onClick={this.startEditing}>
+            <Icon name={'plus'}/>
+          </Button>
 
-          <Dialog
-            title="Add an article"
-            modal={false}
-            open={editing}
-            onRequestClose={this.stopEditing}
-            actions={[
-              <FlatButton label="Cancel" primary={false}
-                          onClick={this.stopEditing} />,
-              <FlatButton label="Save" primary={true}
-                          onClick={() => this.editForm.submit()} />
-            ]}>
-            <Form onValidSubmit={this.createArticle} ref={form => (this.editForm = form)}>
-              <FormsyText
-                name="title"
-                required
-                autoFocus
-                fullWidth={true}
-                floatingLabelText="Title"/>
-            </Form>
-          </Dialog>
-        </div>
-      </MuiThemeProvider>
+          <Modal onClose={this.stopEditing} open={editing}>
+            <Modal.Header>Add an article</Modal.Header>
+
+            <Modal.Content scrolling>
+              <Form ref={node => {this.form = node}}>
+                <Form.Field>
+                  <label>Title</label>
+                  <input
+                    type={'text'}
+                    name={'title'}
+                    required
+                    autoFocus
+                    value={title}
+                    onChange={this.setTitle}
+                  />
+                </Form.Field>
+              </Form>
+            </Modal.Content>
+
+            <Modal.Actions>
+              <Button primary onClick={this.createArticle}>Save</Button>
+              <Button onClick={this.stopEditing}>Cancel</Button>
+            </Modal.Actions>
+          </Modal>
+        </Container>
+      </div>
     )
   }
 }
+
+export default ArticlesList
