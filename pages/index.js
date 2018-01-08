@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import Head from 'next/head'
 import { Button, Container, Form, Header, Icon, List, Modal } from 'semantic-ui-react'
 import feathers from '../feathers-client'
@@ -49,7 +49,7 @@ class ArticlesList extends React.Component {
     const { articles, editing, title } = this.state
 
     return (
-      <div>
+      <Fragment>
         <Head>
           <title>Feathers + Next.js</title>
           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.12/semantic.min.css" />
@@ -103,7 +103,7 @@ class ArticlesList extends React.Component {
             </Modal.Actions>
           </Modal>
         </Container>
-      </div>
+      </Fragment>
     )
   }
 }
