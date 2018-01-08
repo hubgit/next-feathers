@@ -82,7 +82,7 @@ class ArticlesList extends React.Component {
             <Modal.Header>Add an article</Modal.Header>
 
             <Modal.Content scrolling>
-              <Form ref={node => {this.form = node}}>
+              <Form>
                 <Form.Field>
                   <label>Title</label>
                   <input
